@@ -5,7 +5,11 @@ pipeline {
             args '-v /var/run/docker.sock:/var/run/docker.sock' 
         }
     }
-
+    
+    triggers {
+        // Tells Jenkins to check Git for changes every minute
+        pollSCM('* * * * *')
+    }
     environment {
         // Add this line to fix the permission denied error
         HOME = "${WORKSPACE}"
