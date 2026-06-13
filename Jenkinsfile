@@ -17,7 +17,7 @@ pipeline {
         GITHUB_CREDS     = 'github-token'
         GITOPS_REPO_URL  = 'https://github.com/MosheBittan/my-app-gitops.git' 
     }
-    
+
     stages {
         // Step 1: Clone Code (Handled automatically by Jenkins from SCM configuration)
         stage('Checkout Code') {
@@ -40,8 +40,12 @@ pipeline {
         stage('Trivy Security Scan') {
             steps {
                 echo "Running Vulnerability Scan on Image..."
-                // Runs Trivy scanning. --exit-code 0 ensures the build continues even if issues are found
-                sh "trivy image --severity HIGH,CRITICAL --exit-code 0 ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                
+                // Pulls the Trivy container temporarily to scan the image we just built
+                sh """
+                    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                    aquasec/trivy image --severity HIGH,CRITICAL --exit-code 0 ${DOCKER_IMAGE}:${IMAGE_TAG}
+                """
             }
         }
 
