@@ -1,10 +1,15 @@
 pipeline {
-    agent any
+    agent {
+        docker { 
+            image 'docker:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock' 
+        }
+    }
 
     environment {
         // Add this line to fix the permission denied error
         HOME = "${WORKSPACE}"
-        
+
         // Define variables to reuse throughout the pipeline
         DOCKER_IMAGE     = "moshebittan/my-web-app"
         IMAGE_TAG        = "v${BUILD_NUMBER}" // Automatically increments per build (v1, v2, v3...)
@@ -12,7 +17,7 @@ pipeline {
         GITHUB_CREDS     = 'github-token'
         GITOPS_REPO_URL  = 'https://github.com/MosheBittan/my-app-gitops.git' 
     }
-
+sss
     stages {
         // Step 1: Clone Code (Handled automatically by Jenkins from SCM configuration)
         stage('Checkout Code') {
