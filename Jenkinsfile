@@ -17,7 +17,7 @@ pipeline {
         GITHUB_CREDS     = 'github-token'
         GITOPS_REPO_URL  = 'https://github.com/MosheBittan/my-app-gitops.git' 
     }
-sss
+    
     stages {
         // Step 1: Clone Code (Handled automatically by Jenkins from SCM configuration)
         stage('Checkout Code') {
