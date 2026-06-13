@@ -2,6 +2,9 @@ pipeline {
     agent any
 
     environment {
+        // Add this line to fix the permission denied error
+        HOME = "${WORKSPACE}"
+        
         // Define variables to reuse throughout the pipeline
         DOCKER_IMAGE     = "moshebittan/my-web-app"
         IMAGE_TAG        = "v${BUILD_NUMBER}" // Automatically increments per build (v1, v2, v3...)
