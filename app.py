@@ -31,4 +31,4 @@ def hello():
 
 if __name__ == "__main__":
     # The application runs on port 8080 as specified in your architecture
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8090)

@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app.py .
 
 # Step 6: Inform Docker that the container listens on port 8080
-EXPOSE 8080
+EXPOSE 8090
 
 # Step 7: Run the application when the container starts
 CMD ["python", "app.py"]
