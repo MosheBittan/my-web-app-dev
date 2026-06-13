@@ -1,11 +1,5 @@
 pipeline {
-    agent {
-        docker { 
-            image 'docker:latest'
-            // Map the host's docker socket so this temporary container can build images on the host
-            args '-v /var/run/docker.sock:/var/run/docker.sock' 
-        }
-    }
+    agent any
 
     environment {
         // Define variables to reuse throughout the pipeline
