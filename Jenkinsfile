@@ -62,7 +62,7 @@ pipeline {
             }
         }
 
-        // Step 5: Update values.yaml inside DevOps GitOps Repository
+       // Step 5: Update values.yaml inside DevOps GitOps Repository
         stage('Update GitOps Repo') {
             steps {
                 echo "Modifying values.yaml in GitOps repo to use tag ${IMAGE_TAG}..."
@@ -71,8 +71,11 @@ pipeline {
                         // Clean up any old directory if it exists from a previous run
                         sh "rm -rf my-app-gitops"
                         
-                        // Clone the GitOps repository using the token for authentication
-                        sh "git clone https://${GH_USER}:${GH_TOKEN}@${GITOPS_REPO_URL}"
+                        // Use single quotes and environment variables to fix the security warning.
+                        // We strip the 'https://' from the hardcoded string and rely on the variable.
+                        sh '''
+                            git clone https://${GH_USER}:${GH_TOKEN}@github.com/MosheBittan/my-app-gitops.git
+                        '''
                         
                         dir('my-app-gitops') {
                             // Use sed to find 'tag: ' and replace whatever follows it with our new version tag
@@ -83,23 +86,13 @@ pipeline {
                             sh "git config user.name 'Jenkins CI'"
                             
                             // Check if a change was actually made, then commit and push
-                            sh """
+                            sh '''
                                 git add my-app/values.yaml
-                                git commit -m 'Jenkins CI: Update application image tag to ${IMAGE_TAG} [skip ci]' || echo 'No changes to commit'
+                                git commit -m "Jenkins CI: Update application image tag to ${IMAGE_TAG} [skip ci]" || echo 'No changes to commit'
                                 git push origin main
-                            """
+                            '''
                         }
                     }
                 }
             }
         }
-    }
-
-    post {
-        always {
-            echo "Cleaning up local build workspace..."
-            // Remove local images to save storage space on the EC2 host
-            sh "docker rmi ${DOCKER_IMAGE}:${IMAGE_TAG} || true"
-        }
-    }
-}
