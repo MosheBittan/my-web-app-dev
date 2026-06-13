@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define variables to reuse throughout the pipeline
-        DOCKER_IMAGE     = "your_dockerhub_moshebittan/my-web-app"
+        DOCKER_IMAGE     = "moshebittan/my-web-app"
         IMAGE_TAG        = "v${BUILD_NUMBER}" // Automatically increments per build (v1, v2, v3...)
         REGISTRY_CREDS   = 'dockerhub-creds'
         GITHUB_CREDS     = 'github-token'
