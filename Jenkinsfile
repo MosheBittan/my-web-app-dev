@@ -1,10 +1,26 @@
 pipeline {
     agent {
-        docker { 
-            image 'docker:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock' 
+        kubernetes {
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+              - name: docker
+                image: docker:latest
+                command:
+                - cat
+                tty: true
+                volumeMounts:
+                - mountPath: /var/run/docker.sock
+                  name: docker-sock
+              volumes:
+              - name: docker-sock
+                hostPath:
+                  path: /var/run/docker.sock
+            '''
+            }
         }
-    }
     
     triggers {
         // Tells Jenkins to check Git for changes every minute
@@ -36,7 +52,9 @@ pipeline {
             steps {
                 echo "Building Docker Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
+                    container('docker') {
+                        sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
+                    }
                 }
             }
         }
