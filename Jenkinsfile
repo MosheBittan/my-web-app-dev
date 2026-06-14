@@ -10,6 +10,7 @@ pipeline {
         // Tells Jenkins to check Git for changes every minute
         pollSCM('* * * * *')
     }
+    
     environment {
         // Add this line to fix the permission denied error
         HOME = "${WORKSPACE}"
@@ -66,11 +67,14 @@ pipeline {
             }
         }
 
-// Step 5: Render Helm Template and Export to GitOps Repo
+        // Step 5: Render Helm Template and Export to GitOps Repo
         stage('Update GitOps Repo') {
             steps {
                 echo "Rendering Helm chart and pushing to GitOps repo..."
                 script {
+                    // Install missing tools directly into the Jenkins container
+                    sh "apk update && apk add --no-cache git helm"
+                    
                     withCredentials([usernamePassword(credentialsId: GITHUB_CREDS, usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
                         // 1. Clean up old directory to avoid state conflicts
                         sh "rm -rf my-app-gitops"
@@ -84,10 +88,7 @@ pipeline {
                         sh "mkdir -p my-app-gitops/app/dev"
                         
                         // 4. Render the Helm template and save to the target repo
-                        // We use a dockerized Helm because your Jenkins agent is 'docker:latest'
-                        sh """
-                            docker run --rm -v ${WORKSPACE}:/workdir -w /workdir alpine/helm template my-release ./my-app --set tag=${IMAGE_TAG} > my-app-gitops/app/dev/rendered-manifest.yaml
-                        """
+                        sh "helm template my-release ./my-app --set tag=${IMAGE_TAG} > my-app-gitops/app/dev/rendered-manifest.yaml"
                         
                         // 5. Commit and Push the new manifest
                         dir('my-app-gitops') {
