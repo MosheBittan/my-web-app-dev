@@ -48,6 +48,12 @@ To maintain security and prevent deployment loops, the pipeline is split into tw
 ## 🚀 Bootstrapping the Cluster
 To spin up this entire environment from scratch on a new cluster, only two manual steps are required:
 1. Install ArgoCD on the cluster.
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+```
 2. Apply the root ArgoCD application manifest:
    ```bash
-   kubectl apply -f [https://raw.githubusercontent.com/MosheBittan/my-app-gitops/main/bootstrap/argocd-app.yaml](https://raw.githubusercontent.com/MosheBittan/my-app-gitops/main/bootstrap/argocd-app.yaml)
+   kubectl apply -f https://raw.githubusercontent.com/MosheBittan/my-app-gitops/main/bootstrap/argocd-app.yaml
