@@ -66,33 +66,37 @@ pipeline {
             }
         }
 
-       // Step 5: Update values.yaml inside DevOps GitOps Repository
+// Step 5: Render Helm Template and Export to GitOps Repo
         stage('Update GitOps Repo') {
             steps {
-                echo "Modifying values.yaml in GitOps repo to use tag ${IMAGE_TAG}..."
+                echo "Rendering Helm chart and pushing to GitOps repo..."
                 script {
                     withCredentials([usernamePassword(credentialsId: GITHUB_CREDS, usernameVariable: 'GH_USER', passwordVariable: 'GH_TOKEN')]) {
-                        // Clean up any old directory if it exists from a previous run
+                        // 1. Clean up old directory to avoid state conflicts
                         sh "rm -rf my-app-gitops"
                         
-                        // Use single quotes and environment variables to fix the security warning.
-                        // We strip the 'https://' from the hardcoded string and rely on the variable.
+                        // 2. Clone the GitOps repository
                         sh '''
                             git clone https://${GH_USER}:${GH_TOKEN}@github.com/MosheBittan/my-app-gitops.git
                         '''
                         
+                        // 3. Ensure the target directory exists in the GitOps repo
+                        sh "mkdir -p my-app-gitops/app/dev"
+                        
+                        // 4. Render the Helm template and save to the target repo
+                        // We use a dockerized Helm because your Jenkins agent is 'docker:latest'
+                        sh """
+                            docker run --rm -v ${WORKSPACE}:/workdir -w /workdir alpine/helm template my-release ./my-app --set tag=${IMAGE_TAG} > my-app-gitops/app/dev/rendered-manifest.yaml
+                        """
+                        
+                        // 5. Commit and Push the new manifest
                         dir('my-app-gitops') {
-                            // Use sed to find 'tag: ' and replace whatever follows it with our new version tag
-                            sh "sed -i 's/tag:.*/tag: ${IMAGE_TAG}/g' my-app/values.yaml"
-                            
-                            // Configure local git identity for this commit
                             sh "git config user.email 'jenkins@company.com'"
                             sh "git config user.name 'Jenkins CI'"
                             
-                            // Check if a change was actually made, then commit and push
                             sh '''
-                                git add my-app/values.yaml
-                                git commit -m "Jenkins CI: Update application image tag to ${IMAGE_TAG} [skip ci]" || echo 'No changes to commit'
+                                git add app/dev/rendered-manifest.yaml
+                                git commit -m "Jenkins CI: Update rendered manifests for ${IMAGE_TAG} [skip ci]" || echo 'No changes to commit'
                                 git push origin main
                             '''
                         }
