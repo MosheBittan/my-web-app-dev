@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-deployment
   labels:
-    app: my-app
+    app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: my-app
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: my-app
+        app: {{ .Release.Name }}
     spec:
       containers:
         - name: my-app-container
