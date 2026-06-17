@@ -52,7 +52,18 @@ pipeline {
             }
         }
 
-
+        // Step 3: Security Scan using Trivy
+        stage('Trivy Security Scan') {
+            steps {
+                echo "Running Vulnerability Scan on Image..."
+                
+                // Pulls the Trivy container temporarily to scan the image we just built
+                sh """
+                    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                    aquasec/trivy image --severity HIGH,CRITICAL --exit-code 0 ${DOCKER_IMAGE}:${IMAGE_TAG}
+                """
+            }
+        }
 
         // Step 4: Push Image to DockerHub
         stage('Push to DockerHub') {
