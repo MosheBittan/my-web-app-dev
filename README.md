@@ -5,7 +5,7 @@
 This project demonstrates a modern, fully automated Continuous Integration and Continuous Delivery (CI/CD) pipeline using the GitOps methodology. It establishes a strict separation between application code and infrastructure state, ensuring secure, zero-downtime deployments to a Kubernetes cluster.
 
 ## 🏗️ Architecture Diagram
-![GitOps Architecture](architecture.jpg)
+![GitOps Architecture](architecture.png)
 
 ## 🛠️ Technology Stack
 * **Application:** Python (Flask)
