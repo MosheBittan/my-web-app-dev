@@ -100,7 +100,7 @@ pipeline {
                             '''
                             
                             // 3. Ensure the target directory exists
-                            sh "mkdir -p my-app-gitops/app/dev"
+                            sh "mkdir -p my-app-gitops/app/${params.ENVIRONMENT}"
                             
                             // This command uses the parameter to select the right file
                             // If env is 'prod', it uses values-prod.yaml
