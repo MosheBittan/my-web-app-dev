@@ -20,11 +20,6 @@ pipeline {
         }
     }
     
-    triggers {
-        // Tells Jenkins to check Git for changes every minute
-        pollSCM('* * * * *')
-    }
-    
     environment {
         // Add this line to fix the permission denied error
         HOME = "${WORKSPACE}"
