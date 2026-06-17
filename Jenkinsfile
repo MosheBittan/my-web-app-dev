@@ -104,7 +104,7 @@ pipeline {
                             sh "mkdir -p my-app-gitops/app/dev"
                             
                             // 4. Render the Helm template
-                            sh "helm template my-release ./my-app --set image.tag=${IMAGE_TAG} > my-app-gitops/app/dev/my-app-dev.yaml"
+                            sh "helm template my-release ./my-app --set image.tag=${IMAGE_TAG} > my-app-gitops/app/dev/rendered-manifest.yaml"
                             
                             // 5. Commit and Push the new manifest
                             dir('my-app-gitops') {
@@ -112,7 +112,8 @@ pipeline {
                                 sh "git config user.name 'Jenkins CI'"
                                 
                                 sh '''
-                                    git add app/dev/my-app-dev.yaml
+                                    // שורה 73 - מוסיפים את הקובץ המקורי ל-Staging
+                                    git add app/dev/rendered-manifest.yaml
                                     git commit -m "Jenkins CI: Update rendered manifests for ${IMAGE_TAG} [skip ci]" || echo 'No changes to commit'
                                     git push origin main
                                 '''
