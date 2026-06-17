@@ -1,0 +1,12 @@
+replicaCount: 1
+
+image:
+  repository: moshebittan/my-web-app
+  pullPolicy: IfNotPresent
+  # Jenkins will automatically overwrite the tag value below during the pipeline run
+  tag: v1
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8090
