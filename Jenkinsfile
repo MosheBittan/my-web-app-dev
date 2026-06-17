@@ -26,7 +26,7 @@ pipeline {
 
         // Define variables to reuse throughout the pipeline
         DOCKER_IMAGE     = "moshebittan/my-web-app"
-        IMAGE_TAG        = "v${BUILD_NUMBER}" // Automatically increments per build (v1, v2, v3...)
+        IMAGE_TAG        = "v2" // Automatically increments per build (v1, v2, v3...)
         REGISTRY_CREDS   = 'dockerhub-creds'
         GITHUB_CREDS     = 'github-token'
         GITOPS_REPO_URL  = 'https://github.com/MosheBittan/my-app-gitops.git' 
@@ -41,31 +41,6 @@ pipeline {
             }
         }
 
-        // Step 2: Build Docker Image
-        stage('Build Docker Image') {
-            steps {
-                // We must explicitly route this step into the DinD container
-                container('docker') {
-                    echo "Building Docker Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                    sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
-                }
-            }
-        }
-
-
-
-        // Step 4: Push Image to DockerHub
-        stage('Push to DockerHub') {
-            steps {
-                container('docker') {
-                    echo "Logging into DockerHub and pushing image..."
-                    withCredentials([usernamePassword(credentialsId: REGISTRY_CREDS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo '${DOCKER_PASS}' | docker login -u '${DOCKER_USER}' --password-stdin"
-                        sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
-                    }
-                }
-            }
-        }
 
         // Step 5: Render Helm Template and Export to GitOps Repo
         stage('Update GitOps Repo') {
