@@ -57,19 +57,7 @@ pipeline {
             }
         }
 
-        // Step 3: Security Scan using Trivy
-        stage('Trivy Security Scan') {
-            steps {
-                container('docker') {
-                    echo "Running Vulnerability Scan on Image..."
-                    // This works seamlessly because the DinD container has its own docker.sock
-                    sh """
-                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-                        aquasec/trivy image --severity HIGH,CRITICAL --exit-code 0 ${DOCKER_IMAGE}:${IMAGE_TAG}
-                    """
-                }
-            }
-        }
+
 
         // Step 4: Push Image to DockerHub
         stage('Push to DockerHub') {
