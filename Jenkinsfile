@@ -104,7 +104,7 @@ pipeline {
                             sh "mkdir -p my-app-gitops/app/dev"
                             
                             // 4. Render the Helm template
-                            sh "helm template my-release ./my-app --set tag=${IMAGE_TAG} > my-app-gitops/app/dev/rendered-manifest.yaml"
+                            sh "helm template my-release ./my-app --set image.tag=${IMAGE_TAG} > my-app-gitops/app/dev/my-app-dev.yaml"
                             
                             // 5. Commit and Push the new manifest
                             dir('my-app-gitops') {
