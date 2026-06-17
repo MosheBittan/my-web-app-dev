@@ -115,7 +115,6 @@ pipeline {
                           
                             sh """
                                 helm template my-release ./my-app \
-                                --namespace ${targetNamespace} \
                                 -f ${valuesFile} \
                                 --set image.tag=${IMAGE_TAG} \
                                 > my-app-gitops/app/${params.ENVIRONMENT}/${APP_NAME}-manifest.yaml
