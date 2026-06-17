@@ -57,11 +57,13 @@ pipeline {
             steps {
                 echo "Running Vulnerability Scan on Image..."
                 
-                // Pulls the Trivy container temporarily to scan the image we just built
-                sh """
-                    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-                    aquasec/trivy image --severity HIGH,CRITICAL --exit-code 0 ${DOCKER_IMAGE}:${IMAGE_TAG}
-                """
+                // Wrap the shell command in the docker container
+                container('docker') {
+                    sh """
+                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy image --severity HIGH,CRITICAL --exit-code 0 ${DOCKER_IMAGE}:${IMAGE_TAG}
+                    """
+                }
             }
         }
 
