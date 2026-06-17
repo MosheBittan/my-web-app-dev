@@ -43,7 +43,45 @@ pipeline {
                 checkout scm
             }
         }
+        
+        // Step 2: Build Docker Image
+        stage('Build Docker Image') {
+            steps {
+                // We must explicitly route this step into the DinD container
+                container('docker') {
+                    echo "Building Docker Image: ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                    sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
+                }
+            }
+        }
 
+        // Step 3: Security Scan using Trivy
+        stage('Trivy Security Scan') {
+            steps {
+                echo "Running Vulnerability Scan on Image..."
+                
+                // Wrap the shell command in the docker container
+                container('docker') {
+                    sh """
+                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy image --severity HIGH,CRITICAL --exit-code 0 ${DOCKER_IMAGE}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        // Step 4: Push Image to DockerHub
+        stage('Push to DockerHub') {
+            steps {
+                container('docker') {
+                    echo "Logging into DockerHub and pushing image..."
+                    withCredentials([usernamePassword(credentialsId: REGISTRY_CREDS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "echo '${DOCKER_PASS}' | docker login -u '${DOCKER_USER}' --password-stdin"
+                        sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
+                    }
+                }
+            }
+        }
 
 
         // Step 5: Render Helm Template and Export to GitOps Repo
