@@ -95,7 +95,6 @@ pipeline {
                                 sh "git config user.name 'Jenkins CI'"
                                 
                                 sh '''
-                                    // שורה 73 - מוסיפים את הקובץ המקורי ל-Staging
                                     git add app/dev/rendered-manifest.yaml
                                     git commit -m "Jenkins CI: Update rendered manifests for ${IMAGE_TAG} [skip ci]" || echo 'No changes to commit'
                                     git push origin main
