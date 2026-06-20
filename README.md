@@ -57,3 +57,20 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 2. Apply the root ArgoCD application manifest:
    ```bash
    kubectl apply -f https://raw.githubusercontent.com/MosheBittan/my-app-gitops/main/bootstrap/argocd-app.yaml
+
+3. Add linux Certifications & Add Secrets to Kubernetes for tls:
+   ```bash
+   Debian / Ubuntu / Kali:
+    sudo cp rootCA.crt /usr/local/share/ca-certificates/my-root-ca.crt
+    sudo update-ca-certificates
+
+   RHEL / CentOS / AlmaLinux / Fedora
+    sudo cp rootCA.crt /etc/pki/ca-trust/source/anchors/my-root-ca.crt
+    sudo update-ca-trust extract
+
+
+   Check:
+    openssl s_client -connect argocd.moshe.lab:443 -showcerts
+
+   Add secrets:
+    kubectl create secret tls custom-ingress-tls --cert=ingress.crt --key=ingress.key -n monitoring
